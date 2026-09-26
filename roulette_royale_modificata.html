@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Casino Roulette Royale</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b130e;
+            color: #f3f4f6;
+            user-select: none;
+        }
+
+        .font-serif-title {
+            font-family: 'Cinzel', serif;
+        }
+
+        .felt-background {
+            background: radial-gradient(circle at center, #114a2b 0%, #0a2e1a 70%, #051a0e 100%);
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.8);
+        }
+
+        .wood-border {
+            border: 12px solid #3d1c06;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.8), 0 10px 25px rgba(0,0,0,0.7);
+            background: linear-gradient(135deg, #4a2308 0%, #291203 100%);
+        }
+
+        /* Betting Table Custom Styling */
+        .grid-table {
+            display: grid;
+            grid-template-columns: 45px repeat(12, minmax(32px, 1fr)) 50px;
+            gap: 2px;
+            background-color: #052313;
+            padding: 4px;
+            border-radius: 8px;
+            border: 2px solid #c5a059;
+        }
+
+        .bet-cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            position: relative;
+            min-height: 42px;
+            border-radius: 4px;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+
+        .bet-cell:hover {
+            filter: brightness(1.25);
+            transform: scale(0.98);
+        }
+
+        .bg-roulette-red { background-color: #dc2626; color: white; }
+        .bg-roulette-black { background-color: #1f2937; color: white; }
+        .bg-roulette-green { background-color: #16a34a; color: white; }
+        .bg-roulette-outside { background-color: #0e3d23; color: #f3f4f6; border: 1px solid #1a5934; }
+
+        /* Chips styling */
+        .chip {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 800;
+            color: #000;
+            border: 3px dashed #ffffff;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.5), inset 0 0 4px rgba(0,0,0,0.5);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            animation: chipDrop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes chipDrop {
+            0% { transform: translate(-50%, -70%) scale(1.3); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        .chip-10 { background: radial-gradient(circle, #e2e8f0 0%, #94a3b8 100%); color: #0f172a; }
+        .chip-50 { background: radial-gradient(circle, #38bdf8 0%, #0284c7 100%); color: #ffffff; }
+        .chip-100 { background: radial-gradient(circle, #f87171 0%, #dc2626 100%); color: #ffffff; }
+        .chip-200 { background: radial-gradient(circle, #4ade80 0%, #16a34a 100%); color: #ffffff; }
+        .chip-500 { background: radial-gradient(circle, #c084fc 0%, #7e22ce 100%); color: #ffffff; }
+        .chip-750 { background: radial-gradient(circle, #fbbf24 0%, #d97706 100%); color: #000000; }
+        .chip-1000 { background: radial-gradient(circle, #f43f5e 0%, #881337 100%); color: #ffffff; border-color: #fbbf24; }
+        .chip-2000 { background: radial-gradient(circle, #fb923c 0%, #c2410c 100%); color: #ffffff; border-color: #fed7aa; }
+        .chip-5000 { background: radial-gradient(circle, #facc15 0%, #a16207 100%); color: #ffffff; border-color: #fef08a; }
+        .chip-allin { background: radial-gradient(circle, #f5d0fe 0%, #86198f 100%); color: #ffffff; border-color: #f0abfc; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #07120a; }
+        ::-webkit-scrollbar-thumb { background: #1f4e30; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #c5a059; }
+
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #ffe082 0%, #c5a059 50%, #e6c875 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gold-button {
+            background: linear-gradient(180deg, #d4af37 0%, #aa7c11 100%);
+            color: #1a0f00;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.4);
+        }
+
+        .gold-button:hover:not(:disabled) {
+            background: linear-gradient(180deg, #e5be48 0%, #bb8d22 100%);
+        }
+
+        .gold-button:active:not(:disabled) {
+            transform: translateY(1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+
+        .winning-highlight {
+            animation: pulseGlow 1s infinite alternate;
+            z-index: 20;
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 5px #fbbf24, inset 0 0 10px #fbbf24; }
+            100% { box-shadow: 0 0 20px #fbbf24, inset 0 0 15px #fbbf24; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between p-2 md:p-4">
+
+    <!-- Top Header Bar -->
+    <header class="w-full max-w-7xl mx-auto flex flex-wrap justify-between items-center bg-emerald-950/80 border border-amber-600/30 rounded-xl p-3 md:p-4 mb-3 backdrop-blur shadow-2xl">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-600 to-yellow-300 flex items-center justify-center text-emerald-950 shadow-md">
+                <i class="fa-solid fa-crown text-xl"></i>
+            </div>
+            <div>
+                <h1 class="font-serif-title text-xl md:text-2xl font-bold gold-gradient-text tracking-wider">ROULETTE ROYALE</h1>
+                <p class="text-xs text-emerald-400/80">Casinò Europeo Tradizionale</p>
+            </div>
+        </div>
+
+        <!-- Right Stats -->
+        <div class="flex items-center gap-3 mt-2 sm:mt-0">
+            <!-- Daily Bonus Status -->
+            <div id="dailyBonusBadge" class="hidden sm:flex items-center gap-2 bg-amber-500/10 border border-amber-500/40 px-3 py-1.5 rounded-lg text-amber-300 text-xs font-semibold">
+                <i class="fa-solid fa-calendar-check text-amber-400"></i>
+                <span id="dailyBonusText">Bonus Giornaliero Attivo</span>
+            </div>
+
+            <!-- Quiz Earn Button -->
+            <button id="openQuizBtn" class="flex items-center gap-2 bg-gradient-to-r from-indigo-900 to-purple-900 hover:from-indigo-800 hover:to-purple-800 border border-indigo-400/50 px-3.5 py-2 rounded-xl text-indigo-200 text-xs md:text-sm font-bold shadow-lg transition active:scale-95">
+                <i class="fa-solid fa-graduation-cap text-yellow-400 text-base"></i>
+                <span>Guadagna Fiches (Quiz)</span>
+            </button>
+
+            <!-- Fiches Counter -->
+            <div class="flex items-center bg-black/60 border border-amber-500/50 px-4 py-2 rounded-xl shadow-inner">
+                <i class="fa-solid fa-coins text-amber-400 text-lg mr-2.5 animate-pulse"></i>
+                <div>
+                    <div class="text-[10px] text-amber-300/70 font-semibold uppercase tracking-wider">Fiches Disponibili</div>
+                    <div id="balanceDisplay" class="font-bold text-lg md:text-xl text-yellow-400 tracking-wide">10,000</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Game Felt Container -->
+    <main class="w-full max-w-7xl mx-auto felt-background wood-border rounded-3xl p-3 md:p-6 flex-grow flex flex-col justify-between gap-6 relative overflow-hidden">
+        
+        <!-- Top Section: Wheel & Info Bar -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+            
+            <!-- Left: Roulette Wheel Canvas -->
+            <div class="lg:col-span-5 flex flex-col items-center justify-center relative">
+                <div class="relative p-3 bg-gradient-to-b from-amber-950 to-amber-900 rounded-full shadow-2xl border-4 border-amber-600/40">
+                    <canvas id="rouletteWheel" width="340" height="340" class="max-w-full h-auto drop-shadow-2xl cursor-pointer"></canvas>
+                    <!-- Center Brass Pointer -->
+                    <div class="absolute top-1 left-1/2 -translate-x-1/2 w-4 h-6 bg-gradient-to-b from-amber-300 to-amber-600 clip-pointer z-10 shadow-lg"></div>
+                </div>
+                
+                <!-- Last Winning Numbers History -->
+                <div class="w-full max-w-xs mt-3 bg-black/40 border border-emerald-800/60 rounded-lg p-2">
+                    <div class="text-[10px] text-emerald-400 uppercase tracking-widest text-center mb-1 font-semibold">Ultimi Numeri Estratti</div>
+                    <div id="historyContainer" class="flex gap-1.5 justify-center overflow-x-auto py-1 min-h-[32px]">
+                        <span class="text-xs text-emerald-600 italic">Fai girare la ruota...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Display Status & Bet Summary -->
+            <div class="lg:col-span-7 flex flex-col gap-4">
+                
+                <!-- Win / Game Message Display -->
+                <div id="statusBanner" class="bg-black/60 border-2 border-amber-500/40 rounded-2xl p-4 text-center min-h-[90px] flex flex-col items-center justify-center shadow-lg transition-all">
+                    <span class="text-amber-300/80 text-sm font-medium">Piazza le tue puntate sulla tabella e premi GIRA</span>
+                    <span id="statusSubtext" class="text-xs text-emerald-400/80 mt-1">Scegli l'importo della fiche usando le freccette</span>
+                </div>
+
+                <!-- Current Bet Info Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <div class="bg-emerald-950/60 border border-emerald-700/50 rounded-xl p-3 text-center">
+                        <div class="text-xs text-emerald-300/70 font-medium">Puntata Totale</div>
+                        <div id="currentBetDisplay" class="text-xl font-bold text-white mt-0.5">0</div>
+                    </div>
+                    <div class="bg-emerald-950/60 border border-emerald-700/50 rounded-xl p-3 text-center">
+                        <div class="text-xs text-emerald-300/70 font-medium">Ultima Vincita</div>
+                        <div id="lastWinDisplay" class="text-xl font-bold text-amber-400 mt-0.5">0</div>
+                    </div>
+                    <div class="col-span-2 md:col-span-1 bg-emerald-950/60 border border-emerald-700/50 rounded-xl p-3 text-center">
+                        <div class="text-xs text-emerald-300/70 font-medium">Numero Estratto</div>
+                        <div id="winningNumberDisplay" class="text-xl font-bold text-emerald-200 mt-0.5">-</div>
+                    </div>
+                </div>
+
+                <!-- Chip Stake Selector with Arrows -->
+                <div class="bg-black/50 border border-amber-600/30 rounded-2xl p-4 flex flex-col gap-2">
+                    <div class="flex justify-between items-center text-xs text-amber-200/90 font-semibold uppercase tracking-wider px-1">
+                        <span>Valore Fiche Corrente</span>
+                        <span id="chipSelectorValue" class="text-amber-400 font-bold">100 Fiches</span>
+                    </div>
+
+                    <div class="flex items-center justify-between gap-2">
+                        <!-- Arrow Left Button -->
+                        <button id="prevChipBtn" class="w-10 h-10 rounded-xl bg-emerald-800 hover:bg-emerald-700 active:scale-95 text-amber-300 flex items-center justify-center shadow-lg border border-emerald-600 transition">
+                            <i class="fa-solid fa-chevron-left text-lg"></i>
+                        </button>
+
+                        <!-- Chip Selector Options Display -->
+                        <div id="chipsBar" class="flex gap-2 overflow-x-auto py-1 justify-center items-center flex-grow">
+                            <!-- Chips injected via JS -->
+                        </div>
+
+                        <!-- Arrow Right Button -->
+                        <button id="nextChipBtn" class="w-10 h-10 rounded-xl bg-emerald-800 hover:bg-emerald-700 active:scale-95 text-amber-300 flex items-center justify-center shadow-lg border border-emerald-600 transition">
+                            <i class="fa-solid fa-chevron-right text-lg"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Interactive Betting Board -->
+        <div class="w-full overflow-x-auto pb-2">
+            <div class="min-w-[700px] flex flex-col gap-1.5">
+                
+                <!-- Main Grid: 0 + 1-36 Numbers + Columns -->
+                <div class="grid-table">
+                    
+                    <!-- Zero Cell (Spans 3 Rows) -->
+                    <div data-bet="0" class="bet-cell bg-roulette-green rounded-l-md text-lg font-bold" style="grid-row: span 3;">
+                        0
+                    </div>
+
+                    <!-- Numbers 1 to 36 Grid -->
+                    <div id="numbersGrid" class="contents">
+                        <!-- Filled by JS -->
+                    </div>
+
+                    <!-- Column Bets (2 to 1) -->
+                    <div data-bet="col3" class="bet-cell bg-roulette-outside text-xs font-bold hover:bg-emerald-800">2:1</div>
+                    <div data-bet="col2" class="bet-cell bg-roulette-outside text-xs font-bold hover:bg-emerald-800">2:1</div>
+                    <div data-bet="col1" class="bet-cell bg-roulette-outside text-xs font-bold hover:bg-emerald-800">2:1</div>
+                </div>
+
+                <!-- Dozens Row -->
+                <div class="grid grid-cols-12 gap-1 pl-[49px] pr-[52px]">
+                    <div data-bet="doz1" class="col-span-4 bet-cell bg-roulette-outside text-xs font-bold tracking-wider py-2">
+                        1ª DOZZINA (1-12)
+                    </div>
+                    <div data-bet="doz2" class="col-span-4 bet-cell bg-roulette-outside text-xs font-bold tracking-wider py-2">
+                        2ª DOZZINA (13-24)
+                    </div>
+                    <div data-bet="doz3" class="col-span-4 bet-cell bg-roulette-outside text-xs font-bold tracking-wider py-2">
+                        3ª DOZZINA (25-36)
+                    </div>
+                </div>
+
+                <!-- Outside Bets Row -->
+                <div class="grid grid-cols-6 gap-1 pl-[49px] pr-[52px]">
+                    <div data-bet="1to18" class="bet-cell bg-roulette-outside text-xs font-bold py-2.5">
+                        1 - 18
+                    </div>
+                    <div data-bet="even" class="bet-cell bg-roulette-outside text-xs font-bold py-2.5">
+                        PARI
+                    </div>
+                    <div data-bet="red" class="bet-cell bg-roulette-red py-2.5">
+                        <div class="w-5 h-5 bg-red-600 rounded-full border border-white/40 shadow"></div>
+                    </div>
+                    <div data-bet="black" class="bet-cell bg-roulette-black py-2.5">
+                        <div class="w-5 h-5 bg-gray-900 rounded-full border border-white/40 shadow"></div>
+                    </div>
+                    <div data-bet="odd" class="bet-cell bg-roulette-outside text-xs font-bold py-2.5">
+                        DISPARI
+                    </div>
+                    <div data-bet="19to36" class="bet-cell bg-roulette-outside text-xs font-bold py-2.5">
+                        19 - 36
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Action Buttons Control Bar -->
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-black/60 border border-emerald-700/50 p-3 rounded-2xl">
+            <div class="flex items-center gap-2">
+                <button id="clearBetsBtn" class="px-4 py-2.5 rounded-xl bg-red-950/80 hover:bg-red-900 border border-red-700/50 text-red-200 font-semibold text-xs md:text-sm flex items-center gap-2 transition active:scale-95">
+                    <i class="fa-solid fa-trash-can"></i> Cancella Puntate
+                </button>
+                <button id="doubleBetsBtn" class="px-4 py-2.5 rounded-xl bg-amber-950/80 hover:bg-amber-900 border border-amber-700/50 text-amber-200 font-semibold text-xs md:text-sm flex items-center gap-2 transition active:scale-95">
+                    <i class="fa-solid fa-angles-up"></i> Raddoppia (x2)
+                </button>
+            </div>
+
+            <!-- SPIN BUTTON -->
+            <button id="spinBtn" class="gold-button px-8 py-3 rounded-xl font-serif-title font-extrabold text-lg md:text-xl tracking-wider flex items-center gap-3 shadow-2xl transition-all hover:scale-105 active:scale-95">
+                <i class="fa-solid fa-rotate text-xl animate-spin-slow"></i> GIRA LA RUOTA
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Daily Bonus Modal -->
+    <div id="dailyModal" class="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-gradient-to-b from-emerald-900 to-black border-2 border-amber-500 rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-amber-500/20 rounded-full blur-2xl"></div>
+            
+            <div class="w-16 h-16 bg-gradient-to-tr from-amber-500 to-yellow-300 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-950 shadow-xl">
+                <i class="fa-solid fa-gift text-3xl"></i>
+            </div>
+            
+            <h2 class="font-serif-title text-2xl font-bold gold-gradient-text mb-1">Bonus Giornaliero!</h2>
+            <p class="text-sm text-emerald-200/80 mb-4">Bentornato al Casinò! Hai ricevuto il tuo accredito quotidiano.</p>
+            
+            <div class="bg-black/60 border border-amber-500/40 rounded-2xl p-4 mb-6">
+                <span class="text-3xl font-extrabold text-amber-400">+100 FICHES</span>
+            </div>
+            
+            <button id="closeDailyModalBtn" class="gold-button w-full py-3 rounded-xl font-bold text-sm tracking-wide shadow-lg">
+                RITIRA E GIOCA
+            </button>
+        </div>
+    </div>
+
+    <!-- Quiz Modal -->
+    <div id="quizModal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 md:p-4 z-50 hidden">
+        <div class="bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-950 border-2 border-indigo-500/50 rounded-3xl p-4 md:p-6 max-w-xl w-full text-white shadow-2xl relative overflow-hidden">
+            
+            <!-- Close Quiz Modal Button -->
+            <button id="closeQuizModalBtn" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl w-8 h-8 rounded-full bg-black/40 flex items-center justify-center border border-white/10">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- QUIZ STEP 1: CONFIGURATION -->
+            <div id="quizSetupStep" class="flex flex-col gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-600/30 border border-indigo-400/50 flex items-center justify-center text-indigo-300 text-2xl">
+                        <i class="fa-solid fa-brain"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-serif-title text-xl md:text-2xl font-bold text-indigo-200">Sfida Quiz ITT & Cultura</h2>
+                        <p class="text-xs text-indigo-300/80">Rispondi a domande casuali per guadagnare fiches!</p>
+                    </div>
+                </div>
+
+                <!-- Select Category -->
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold text-indigo-200 uppercase tracking-wider">Materia / Categoria</label>
+                    <select id="quizCategorySelect" class="bg-slate-800 border border-indigo-500/40 rounded-xl p-2.5 text-sm font-medium focus:outline-none focus:border-indigo-400 text-slate-100">
+                        <option value="cultura">Cultura Generale (Generale & Vita)</option>
+                        <option value="storia">Storia (3° e 4° Anno ITT)</option>
+                        <option value="matematica">Matematica (3° e 4° Anno ITT)</option>
+                        <option value="tpsit">TPSIT (3° e 4° Anno ITT)</option>
+                        <option value="telecomunicazioni">Telecomunicazioni (3° e 4° Anno ITT)</option>
+                        <option value="sistemi">Sistemi e Reti (3° e 4° Anno ITT)</option>
+                    </select>
+                </div>
+
+                <!-- Select Number of Questions -->
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold text-indigo-200 uppercase tracking-wider">Numero di Domande</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button type="button" data-qcount="3" class="quiz-qcount-btn py-2.5 rounded-xl border border-indigo-500/40 bg-indigo-950/60 font-bold text-xs md:text-sm transition hover:bg-indigo-800">
+                            3 Domande<br><span class="text-[10px] text-amber-300 font-normal">(50 fiches/d)</span>
+                        </button>
+                        <button type="button" data-qcount="5" class="quiz-qcount-btn py-2.5 rounded-xl border border-indigo-500/40 bg-indigo-700 ring-2 ring-amber-400 font-bold text-xs md:text-sm transition hover:bg-indigo-800">
+                            5 Domande<br><span class="text-[10px] text-amber-300 font-normal">(75 fiches/d)</span>
+                        </button>
+                        <button type="button" data-qcount="10" class="quiz-qcount-btn py-2.5 rounded-xl border border-indigo-500/40 bg-indigo-950/60 font-bold text-xs md:text-sm transition hover:bg-indigo-800">
+                            10 Domande<br><span class="text-[10px] text-amber-300 font-normal">(100 fiches/d)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Select Difficulty -->
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold text-indigo-200 uppercase tracking-wider">Livello di Difficoltà</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button type="button" data-diff="facile" class="quiz-diff-btn py-2.5 rounded-xl border border-emerald-500/40 bg-emerald-950/40 ring-2 ring-amber-400 scale-105 font-bold text-xs md:text-sm transition hover:bg-emerald-800">
+                            Facile<br><span class="text-[10px] text-emerald-300 font-normal">Moltiplicatore x1</span>
+                        </button>
+                        <button type="button" data-diff="media" class="quiz-diff-btn py-2.5 rounded-xl border border-amber-500/40 bg-amber-950/40 font-bold text-xs md:text-sm transition hover:bg-amber-800">
+                            Media<br><span class="text-[10px] text-amber-300 font-normal">Moltiplicatore x1.5</span>
+                        </button>
+                        <button type="button" data-diff="difficile" class="quiz-diff-btn py-2.5 rounded-xl border border-red-500/40 bg-red-950/40 font-bold text-xs md:text-sm transition hover:bg-red-800">
+                            Difficile<br><span class="text-[10px] text-red-300 font-normal">Moltiplicatore x2</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Potential Earnings Summary -->
+                <div class="bg-indigo-950/80 border border-amber-500/40 rounded-xl p-3 flex justify-between items-center text-xs">
+                    <span class="text-indigo-200">Vincita Max Calcolata:</span>
+                    <span id="quizMaxEarningsDisplay" class="text-sm font-extrabold text-yellow-400">375 Fiches</span>
+                </div>
+
+                <button id="startQuizBtn" class="gold-button w-full py-3.5 rounded-xl font-bold text-base tracking-wide shadow-xl flex items-center justify-center gap-2 mt-1">
+                    <i class="fa-solid fa-play"></i> INIZIA IL QUIZ
+                </button>
+            </div>
+
+            <!-- QUIZ STEP 2: ACTIVE QUESTION SCREEN -->
+            <div id="quizActiveStep" class="hidden flex flex-col gap-4">
+                <div class="flex justify-between items-center border-b border-indigo-500/30 pb-3">
+                    <span id="quizProgressText" class="text-xs font-semibold text-indigo-300">Domanda 1 / 5</span>
+                    <div class="flex items-center gap-2">
+                        <span id="quizCurrentDiffBadge" class="bg-emerald-900/80 text-emerald-200 px-2 py-0.5 rounded-full text-[10px] font-bold border border-emerald-500/40 uppercase">Facile</span>
+                        <span id="quizCurrentCategoryBadge" class="bg-indigo-900/80 text-amber-300 px-2.5 py-1 rounded-full text-[11px] font-bold border border-indigo-500/40">Cultura Generale</span>
+                    </div>
+                </div>
+
+                <div class="bg-black/40 border border-indigo-500/30 rounded-2xl p-4 min-h-[90px] flex items-center justify-center text-center">
+                    <p id="quizQuestionText" class="text-sm md:text-base font-semibold text-indigo-100">Caricamento domanda...</p>
+                </div>
+
+                <div id="quizOptionsContainer" class="grid grid-cols-1 gap-2.5">
+                    <!-- Dynamic Buttons Generated in JS -->
+                </div>
+
+                <div id="quizFeedbackBox" class="hidden p-3 rounded-xl border text-xs text-center font-medium"></div>
+
+                <button id="quizNextBtn" class="hidden gold-button w-full py-3 rounded-xl font-bold text-sm shadow-lg">
+                    PROSSIMA DOMANDA <i class="fa-solid fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+
+            <!-- QUIZ STEP 3: RESULTS SCREEN -->
+            <div id="quizResultStep" class="hidden flex flex-col items-center justify-center text-center gap-4 py-2">
+                <div class="w-16 h-16 bg-gradient-to-tr from-amber-500 to-yellow-300 rounded-full flex items-center justify-center text-slate-950 text-3xl shadow-xl">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+
+                <h3 class="font-serif-title text-2xl font-bold text-amber-300">Quiz Completato!</h3>
+
+                <div class="bg-black/50 border border-indigo-500/40 rounded-2xl p-4 w-full flex flex-col gap-2">
+                    <div class="flex justify-between items-center text-xs text-indigo-200">
+                        <span>Risposte Corrette:</span>
+                        <span id="quizResultScoreText" class="text-sm font-bold text-emerald-400">4 / 5</span>
+                    </div>
+                    <div class="flex justify-between items-center text-xs text-indigo-200 border-t border-indigo-500/20 pt-2">
+                        <span>Moltiplicatore Difficoltà:</span>
+                        <span id="quizResultMultText" class="text-sm font-bold text-amber-400">x1</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm font-extrabold text-yellow-300 border-t border-indigo-500/30 pt-2">
+                        <span>FICHES GUADAGNATE:</span>
+                        <span id="quizResultFichesText" class="text-xl text-yellow-400">+300 Fiches</span>
+                    </div>
+                </div>
+
+                <button id="collectQuizEarningsBtn" class="gold-button w-full py-3.5 rounded-xl font-bold text-sm tracking-wider shadow-lg">
+                    ACCREDITA E TORNA ALLA ROULETTE
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-amber-500 text-emerald-950 font-bold px-6 py-3 rounded-xl shadow-2xl border border-yellow-200 z-50 transition-all duration-300 opacity-0 pointer-events-none transform translate-y-4 text-center">
+        <span id="toastMessage">Messaggio</span>
+    </div>
+
+    <script>
+        // European Roulette Constants
+        const ROULETTE_NUMBERS = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
+        const RED_NUMBERS = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
+        const CHIP_VALUES = [10, 50, 100, 200, 500, 750, 1000, 2000, 5000, 'ALL IN'];
+
+        // Global State Variables
+        let balance = 10000;
+        let currentBets = {};
+        let history = [];
+        let isSpinning = false;
+        let selectedChipIndex = 2; // Default to 100 fiches
+
+        // Web Audio Synthesizer sound generator
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            try {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const now = audioCtx.currentTime;
+                if (type === 'chip') {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(800, now);
+                    osc.frequency.exponentialRampToValueAtTime(400, now + 0.08);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                } else if (type === 'tick') {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(600, now);
+                    osc.frequency.exponentialRampToValueAtTime(100, now + 0.03);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.03);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.03);
+                } else if (type === 'win') {
+                    [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(freq, now + idx * 0.1);
+                        gain.gain.setValueAtTime(0.3, now + idx * 0.1);
+                        gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.1 + 0.3);
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.start(now + idx * 0.1);
+                        osc.stop(now + idx * 0.1 + 0.3);
+                    });
+                } else if (type === 'lose') {
+                    [300, 250, 200].forEach((freq, idx) => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.type = 'sawtooth';
+                        osc.frequency.setValueAtTime(freq, now + idx * 0.12);
+                        gain.gain.setValueAtTime(0.2, now + idx * 0.12);
+                        gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.12 + 0.2);
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.start(now + idx * 0.12);
+                        osc.stop(now + idx * 0.12 + 0.2);
+                    });
+                }
+            } catch(e) {
+                // Audio Context fallback if blocked
+            }
+        }
+
+        function initLocalStorage() {
+            const savedBalance = localStorage.getItem('roulette_balance');
+            if (savedBalance !== null) {
+                balance = parseInt(savedBalance, 10);
+            } else {
+                balance = 10000;
+                localStorage.setItem('roulette_balance', balance);
+            }
+
+            const lastLogin = localStorage.getItem('roulette_last_login');
+            const today = new Date().toDateString();
+
+            if (lastLogin !== today) {
+                balance += 100;
+                localStorage.setItem('roulette_balance', balance);
+                localStorage.setItem('roulette_last_login', today);
+                document.getElementById('dailyBonusBadge').classList.remove('hidden');
+                document.getElementById('dailyBonusBadge').classList.add('flex');
+                document.getElementById('dailyModal').classList.remove('hidden');
+            } else {
+                document.getElementById('dailyBonusBadge').classList.remove('hidden');
+                document.getElementById('dailyBonusBadge').classList.add('flex');
+            }
+
+            updateBalanceDisplay();
+        }
+
+        function updateBalanceDisplay() {
+            document.getElementById('balanceDisplay').innerText = balance.toLocaleString('it-IT');
+            localStorage.setItem('roulette_balance', balance);
+        }
+
+        function createBettingTable() {
+            const numbersGrid = document.getElementById('numbersGrid');
+            numbersGrid.innerHTML = '';
+
+            for (let r = 3; r >= 1; r--) {
+                for (let col = 0; col < 12; col++) {
+                    const num = col * 3 + r;
+                    const cell = document.createElement('div');
+                    cell.setAttribute('data-bet', num.toString());
+                    
+                    let colorClass = 'bg-roulette-black';
+                    if (RED_NUMBERS.includes(num)) {
+                        colorClass = 'bg-roulette-red';
+                    }
+                    
+                    cell.className = `bet-cell ${colorClass} text-sm md:text-base font-bold`;
+                    cell.innerText = num;
+                    numbersGrid.appendChild(cell);
+                }
+            }
+
+            document.querySelectorAll('[data-bet]').forEach(cell => {
+                cell.addEventListener('click', () => {
+                    if (isSpinning) return;
+                    const betType = cell.getAttribute('data-bet');
+                    placeBet(betType);
+                });
+            });
+        }
+
+        function placeBet(betType) {
+            const selectedValue = CHIP_VALUES[selectedChipIndex];
+            const selectedAmount = selectedValue === 'ALL IN' ? balance : selectedValue;
+            if (selectedAmount <= 0 || balance < selectedAmount) {
+                showToast('Fiches insufficienti per questa puntata!');
+                return;
+            }
+
+            balance -= selectedAmount;
+            currentBets[betType] = (currentBets[betType] || 0) + selectedAmount;
+            updateBalanceDisplay();
+            updateBetsUI();
+            playSound('chip');
+        }
+
+        function updateBetsUI() {
+            document.querySelectorAll('.chip').forEach(c => c.remove());
+
+            let totalBet = 0;
+            Object.keys(currentBets).forEach(betType => {
+                const amount = currentBets[betType];
+                if (amount > 0) {
+                    totalBet += amount;
+                    const cell = document.querySelector(`[data-bet="${betType}"]`);
+                    if (cell) {
+                        const chip = document.createElement('div');
+                        let chipColorClass = 'chip-100';
+                        if (amount >= 1000) chipColorClass = 'chip-1000';
+                        else if (amount >= 750) chipColorClass = 'chip-750';
+                        else if (amount >= 500) chipColorClass = 'chip-500';
+                        else if (amount >= 200) chipColorClass = 'chip-200';
+                        else if (amount >= 100) chipColorClass = 'chip-100';
+                        else if (amount >= 50) chipColorClass = 'chip-50';
+                        else chipColorClass = 'chip-10';
+
+                        chip.className = `chip ${chipColorClass}`;
+                        chip.innerText = amount >= 1000 ? `${amount/1000}k` : amount;
+                        cell.appendChild(chip);
+                    }
+                }
+            });
+
+            document.getElementById('currentBetDisplay').innerText = totalBet.toLocaleString('it-IT');
+        }
+
+        function renderChipsBar() {
+            const chipsBar = document.getElementById('chipsBar');
+            chipsBar.innerHTML = '';
+
+            CHIP_VALUES.forEach((val, idx) => {
+                const chipBtn = document.createElement('button');
+                let chipBg = 'chip-100';
+                if (val === 10) chipBg = 'chip-10';
+                else if (val === 50) chipBg = 'chip-50';
+                else if (val === 100) chipBg = 'chip-100';
+                else if (val === 200) chipBg = 'chip-200';
+                else if (val === 500) chipBg = 'chip-500';
+                else if (val === 750) chipBg = 'chip-750';
+                else if (val === 1000) chipBg = 'chip-1000';
+                else if (val === 2000) chipBg = 'chip-2000';
+                else if (val === 5000) chipBg = 'chip-5000';
+                else if (val === 'ALL IN') chipBg = 'chip-allin';
+
+                const activeRing = idx === selectedChipIndex ? 'ring-4 ring-amber-400 scale-110 z-10' : 'opacity-70 hover:opacity-100';
+
+                chipBtn.className = `relative w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center font-extrabold text-xs shadow-lg transition-all transform ${chipBg} ${activeRing}`;
+                chipBtn.innerText = val === 'ALL IN' ? 'ALL IN' : (val >= 1000 ? `${val / 1000}k` : val);
+
+                chipBtn.addEventListener('click', () => {
+                    selectedChipIndex = idx;
+                    renderChipsBar();
+                    playSound('chip');
+                });
+
+                chipsBar.appendChild(chipBtn);
+            });
+
+            const selectedValue = CHIP_VALUES[selectedChipIndex];
+            document.getElementById('chipSelectorValue').innerText = selectedValue === 'ALL IN' ? `ALL IN (${balance.toLocaleString('it-IT')} Fiches)` : `${selectedValue.toLocaleString('it-IT')} Fiches`;
+        }
+
+        document.getElementById('prevChipBtn').addEventListener('click', () => {
+            if (selectedChipIndex > 0) {
+                selectedChipIndex--;
+                renderChipsBar();
+                playSound('chip');
+            }
+        });
+
+        document.getElementById('nextChipBtn').addEventListener('click', () => {
+            if (selectedChipIndex < CHIP_VALUES.length - 1) {
+                selectedChipIndex++;
+                renderChipsBar();
+                playSound('chip');
+            }
+        });
+
+        document.getElementById('clearBetsBtn').addEventListener('click', () => {
+            if (isSpinning) return;
+            const totalRefund = Object.values(currentBets).reduce((a, b) => a + b, 0);
+            balance += totalRefund;
+            currentBets = {};
+            updateBalanceDisplay();
+            updateBetsUI();
+            playSound('chip');
+        });
+
+        document.getElementById('doubleBetsBtn').addEventListener('click', () => {
+            if (isSpinning) return;
+            const totalBet = Object.values(currentBets).reduce((a, b) => a + b, 0);
+            if (totalBet === 0) {
+                showToast('Nessuna puntata da raddoppiare!');
+                return;
+            }
+            if (balance < totalBet) {
+                showToast('Fiches insufficienti per raddoppiare!');
+                return;
+            }
+
+            balance -= totalBet;
+            Object.keys(currentBets).forEach(betType => {
+                currentBets[betType] *= 2;
+            });
+            updateBalanceDisplay();
+            updateBetsUI();
+            playSound('chip');
+        });
+
+        // QUESTION BANK (200+ Questions distributed by category and difficulty)
+        const QUIZ_QUESTIONS = {
+            cultura: {
+                facile: [
+                    { q: "Qual è la capitale d'Italia?", options: ["Roma", "Milano", "Napoli", "Torino"], answer: 0 },
+                    { q: "Qual è l'oceano più grande della Terra?", options: ["Oceano Pacifico", "Oceano Atlantico", "Oceano Indiano", "Mar Glaciale Artico"], answer: 0 },
+                    { q: "Quanti giorni ci sono in un anno bisestile?", options: ["366", "365", "364", "360"], answer: 0 },
+                    { q: "Chi ha dipinto la Gioconda (Monna Lisa)?", options: ["Leonardo da Vinci", "Michelangelo", "Raffaello", "Caravaggio"], answer: 0 },
+                    { q: "Qual è il pianeta più vicino al Sole?", options: ["Mercurio", "Venere", "Marte", "Giove"], answer: 0 },
+                    { q: "Il Colosseo si trova a Roma.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Qual è il fiume più lungo d'Italia?", options: ["Po", "Tevere", "Arno", "Adige"], answer: 0 },
+                    { q: "Quante sono le regioni dell'Italia?", options: ["20", "18", "22", "15"], answer: 0 },
+                    { q: "Quale animale è noto per essere il 're della foresta'?", options: ["Leone", "Tigre", "Orso", "Lupo"], answer: 0 },
+                    { q: "In quale continente si trova l'Egitto?", options: ["Africa", "Asia", "Europa", "America"], answer: 0 },
+                    { q: "La lingua ufficiale del Brasile è il portoghese.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Qual è la formula chimica dell'acqua potabile?", options: ["H2O", "CO2", "NaCl", "O2"], answer: 0 }
+                ],
+                media: [
+                    { q: "Quale scienziato ha formulato la Teoria della Relatività?", options: ["Albert Einstein", "Isaac Newton", "Galileo Galilei", "Nikola Tesla"], answer: 0 },
+                    { q: "In quale città si trova la torre pendente più famosa d'Italia?", options: ["Pisa", "Firenze", "Bologna", "Venezia"], answer: 0 },
+                    { q: "Qual è la capitale del Giappone?", options: ["Tokyo", "Kyoto", "Osaka", "Seoul"], answer: 0 },
+                    { q: "Chi ha scritto il romanzo '1984'?", options: ["George Orwell", "Aldous Huxley", "Franz Kafka", "Ernest Hemingway"], answer: 0 },
+                    { q: "Il monte Everest fa parte della catena dell'Himalaya.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Qual è l'elemento chimico con simbolo 'Au'?", options: ["Oro", "Argento", "Rame", "Alluminio"], answer: 0 },
+                    { q: "In quale stato si trova la statua della Libertà?", options: ["Stati Uniti", "Francia", "Regno Unito", "Canada"], answer: 0 },
+                    { q: "Chi fu il primo uomo ad allunare nel 1969?", options: ["Neil Armstrong", "Buzz Aldrin", "Yuri Gagarin", "Michael Collins"], answer: 0 },
+                    { q: "Qual è il metallo liquido a temperatura ambiente?", options: ["Mercurio", "Piombo", "Zinco", "Stagno"], answer: 0 },
+                    { q: "Il dipinto 'La Notte Stellata' è stato realizzato da Vincent van Gogh.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Qual è la moneta ufficiale utilizzata nel Regno Unito?", options: ["Stellina / Sterlina", "Euro", "Dollaro", "Franco"], answer: 0 },
+                    { q: "Quanti denti ha un adulto con dentatura permanente completa?", options: ["32", "30", "28", "36"], answer: 0 }
+                ],
+                difficile: [
+                    { q: "Qual è la capitale della Mongolia?", options: ["Ulan Bator", "Astana", "Tashkent", "Bishkek"], answer: 0 },
+                    { q: "In che anno è caduto il Muro di Berlino?", options: ["1989", "1991", "1985", "1975"], answer: 0 },
+                    { q: "Quale filosofo greco è stato il maestro di Alessandro Magno?", options: ["Aristotele", "Platone", "Socrate", "Pitagora"], answer: 0 },
+                    { q: "Qual è il paese con la superficie territoriale più vasta al mondo?", options: ["Russia", "Canada", "Cina", "Stati Uniti"], answer: 0 },
+                    { q: "La fossa delle Marianne si trova nell'Oceano Atlantico.", options: ["Vero", "Falso"], answer: 1 },
+                    { q: "Chi ha composto l'opera lirica 'La Traviata'?", options: ["Giuseppe Verdi", "Giacomo Puccini", "Gioachino Rossini", "Vincenzo Bellini"], answer: 0 },
+                    { q: "Qual è l'organo umano più grande per superficie?", options: ["Pelle", "Fegato", "Polmoni", "Intestino"], answer: 0 },
+                    { q: "Chi è considerato il padre della fisica moderna scientifica e del metodo sperimentale?", options: ["Galileo Galilei", "Isaac Newton", "Keplero", "Copernico"], answer: 0 },
+                    { q: "In quale anno si è svolta la Battaglia di Waterloo?", options: ["1815", "1805", "1799", "1821"], answer: 0 },
+                    { q: "Il premio Nobel prende il nome dal chimico svvedese inventore della dinamite.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Qual è la stella più vicina al nostro sistema solare?", options: ["Proxima Centauri", "Sirio", "Vega", "Betelgeuse"], answer: 0 },
+                    { q: "Quale grande impero fu sconfitto nella battaglia di Lepanto nel 1571?", options: ["Impero Ottomano", "Impero Persiano", "Impero Russo", "Impero Asburgico"], answer: 0 }
+                ]
+            },
+            storia: {
+                facile: [
+                    { q: "In quale secolo ha avuto inizio la Prima Rivoluzione Industriale?", options: ["XVIII Secolo (1700)", "XVII Secolo", "XIX Secolo", "XVI Secolo"], answer: 0 },
+                    { q: "La presa della Bastiglia si è verificata nel 1789.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "In che anno è stato proclamato il Regno d'Italia?", options: ["1861", "1848", "1870", "1918"], answer: 0 },
+                    { q: "Chi fu il re d'Italia al momento dell'Unificazione del 1861?", options: ["Vittorio Emanuele II", "Umberto I", "Carlo Alberto", "Vittorio Emanuele III"], answer: 0 },
+                    { q: "Chi era l'imperatore francese sconfitto a Waterloo?", options: ["Napoleone Bonaparte", "Luigi XIV", "Napoleone III", "Luigi XVI"], answer: 0 },
+                    { q: "La scoperta dell'America avvenne nel 1492 da parte di Cristoforo Colombo.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "La Prima Guerra Mondiale è iniziata nel 1914.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Quale città fu la prima capitale del Regno d'Italia unificato?", options: ["Torino", "Firenze", "Roma", "Milano"], answer: 0 },
+                    { q: "La Rivoluzione Francese sosteneva i principi di Libertà, Uguaglianza e Fratellanza.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "In che anno scoppiò la Seconda Guerra Mondiale in Europa?", options: ["1939", "1915", "1945", "1929"], answer: 0 },
+                    { q: "Chi guidò la spedizione dei Mille sbarcando a Marsala nel 1860?", options: ["Giuseppe Garibaldi", "Cavour", "Mazzini", "Bixio"], answer: 0 },
+                    { q: "La breccia di Porta Pia nel 1870 portò all'annessione di Roma all'Italia.", options: ["Vero", "Falso"], answer: 0 }
+                ],
+                media: [
+                    { q: "Quale politico fu l'artefice della tessitura diplomatica dell'Unità d'Italia?", options: ["Camillo Benso Conte di Cavour", "Giuseppe Mazzini", "Giuseppe Garibaldi", "Vincenzo Gioberti"], answer: 0 },
+                    { q: "Il Congresso di Vienna del 1814-1815 diede inizio all'epoca della Restaurazione.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Cosa chiedevano i patrioti durante i moti rivoluzionari del 1848 in Italia?", options: ["La Costituzione e l'indipendenza dallo straniero", "Il ritorno alla feudalità", "L'alleanza con la Russia", "L'abolizione delle tasse sui commerci"], answer: 0 },
+                    { q: "Quale associazione segreta patriottica fu fondata da Giuseppe Mazzini nel 1831?", options: ["Giovine Italia", "Carboneria", "Massoneria", "Società dei Giustizieri"], answer: 0 },
+                    { q: "La Guerra di Crimea (1853-1856) vide la partecipazione del Regno di Sardegna inviato da Cavour.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Chi era lo Zar di Russia durante la campagna napoleonica del 1812?", options: ["Alessandro I", "Nicola II", "Pietro il Grande", "Ivan il Terribile"], answer: 0 },
+                    { q: "In quale anno scoppiò la Terza Guerra d'Indipendenza italiana?", options: ["1866", "1859", "1848", "1870"], answer: 0 },
+                    { q: "Quale trattato di pace concluse la Prima Guerra Mondiale nel 1919?", options: ["Trattato di Versailles", "Trattato di Utrecht", "Pace di Vestfalia", "Trattato di Vienna"], answer: 0 },
+                    { q: "La guerra franco-prussiana del 1870 portò alla nascita dell'Impero Tedesco (Second Reich).", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Quale evento scatenò formalmente la Prima Guerra Mondiale nel luglio 1914?", options: ["L'attentato di Sarajevo all'arciduca Francesco Ferdinando", "L'invasione della Polonia", "L'affondamento del Lusitania", "Il crollo di Wall Street"], answer: 0 },
+                    { q: "La Quadruplice Alleanza del Congresso di Vienna vedeva alleate Austria, Prussia, Russia e Gran Bretagna.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "In che anno si verificò il crollo della Borsa di Wall Street scatenando la Grande Depressione?", options: ["1929", "1918", "1939", "1905"], answer: 0 }
+                ],
+                difficile: [
+                    { q: "Quale trattato impose pesanti riparazioni finanziarie alla Germania dopo la Prima Guerra Mondiale?", options: ["Trattato di Versailles", "Trattato di Campoformio", "Pace di Nizza", "Patto di Londra"], answer: 0 },
+                    { q: "Con quale accordo segreto nel 1915 l'Italia si impegnò a entrare in guerra a fianco dell'Intesa?", options: ["Patto di Londra", "Accordi di Plombières", "Trattato di Zurigo", "Armistizio di Villafranca"], answer: 0 },
+                    { q: "Chi fu il presidente degli Stati Uniti autore dei famosi '14 Punti' per la pace nel 1918?", options: ["Woodrow Wilson", "Franklin D. Roosevelt", "Theodore Roosevelt", "Harry Truman"], answer: 0 },
+                    { q: "Gli Accordi di Plombières del 1858 furono stipulati tra Cavour e Napoleone III.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Quale generale guidò la vittoria italiana nella battaglia finale di Vittorio Veneto nel 1918?", options: ["Armando Diaz", "Luigi Cadorna", "Pietro Badoglio", "Enrico Cialdini"], answer: 0 },
+                    { q: "Quale scisma o rivoluzione scosse la Russia nel febbraio e ottobre del 1917?", options: ["Rivoluzione Russa d'Ottobre (Bolscevica)", "Rivoluzione Decabrista", "Rivoluzione Arancione", "Rivoluzione Industriale Uralica"], answer: 0 },
+                    { q: "Chi fu il teorico dell'ideologia comunista autore del 'Manifesto del Partito Comunista' nel 1848?", options: ["Karl Marx e Friedrich Engels", "Vladimir Lenin", "Leon Trotsky", "Mikhail Bakunin"], answer: 0 },
+                    { q: "Il cancelliere prussiano Otto von Bismarck fu soprannominato 'il Cancelliere di Ferro'.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Quale battaglia del 1859 segnò la vittoria decisiva franco-piemontese nell'Italia settentrionale?", options: ["Battaglia di Solferino e San Martino", "Battaglia di Novara", "Battaglia di Custoza", "Battaglia di Lissa"], answer: 0 },
+                    { q: "Quale enciclica papale emanata da Leone XIII nel 1891 affrontò la questione sociale degli operai?", options: ["Rerum Novarum", "Quadragesimo Anno", "Pacem in Terris", "Humanae Vitae"], answer: 0 },
+                    { q: "Chi fu il leader politico bolscevico a capo del governo sovietico dopo la rivoluzione del 1917?", options: ["Vladimir Lenin", "Iosif Stalin", "Lev Trotsky", "Nikita Chruščëv"], answer: 0 },
+                    { q: "La guerra di secessione americana fu combattuta tra il 1861 e il 1865.", options: ["Vero", "Falso"], answer: 0 }
+                ]
+            },
+            matematica: {
+                facile: [
+                    { q: "Qual è la soluzione dell'equazione 2x - 6 = 0?", options: ["x = 3", "x = -3", "x = 6", "x = 0"], answer: 0 },
+                    { q: "La derivata della funzione costante f(x) = 8 è pari a 0.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Qual è la derivata di f(x) = x²?", options: ["2x", "x", "2", "x³"], answer: 0 },
+                    { q: "Qual è il valore di sin(90°) o sin(π/2)?", options: ["1", "0", "-1", "1/2"], answer: 0 },
+                    { q: "Un triangolo rettangolo ha un angolo retto di 90 gradi.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Qual è il risultato di 3² + 4²?", options: ["25", "14", "49", "12"], answer: 0 },
+                    { q: "La pendenza di una retta orizzontale nell'asse cartesiano è m = 0.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Qual è il valore del coefficiente angolare m nella retta y = 4x - 2?", options: ["4", "-2", "2", "1/4"], answer: 0 },
+                    { q: "In goniometria cos(0°) corrisponde a 1.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Qual è il dominio della funzione f(x) = 1/x?", options: ["Tutti i numeri reali tranne x = 0", "Solo numeri positivi", "Tutti i numeri reali", "Solo x > 1"], answer: 0 },
+                    { q: "Il Teorema di Pitagora si applica a qualsiasi tipo di triangolo.", options: ["Vero", "Falso"], answer: 1 },
+                    { q: "Quanto vale log₁₀(100)?", options: ["2", "10", "1", "100"], answer: 0 }
+                ],
+                media: [
+                    { q: "Qual è la derivata di f(x) = 3x³?", options: ["9x²", "3x²", "6x", "9x³"], answer: 0 },
+                    { q: "Il limite di (1/x) per x che tende a +∞ vale 0.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Qual è la derivata fondamentale di eˣ?", options: ["eˣ", "x eˣ⁻¹", "1/x", "ln(x)"], answer: 0 },
+                    { q: "Qual è il valore di cos(π) o cos(180°)?", options: ["-1", "0", "1", "1/2"], answer: 0 },
+                    { q: "L'equazione x² + 1 = 0 ha due soluzioni reali distinte.", options: ["Vero", "Falso"], answer: 1 },
+                    { q: "Qual è il valore del limite notevole sin(x)/x per x → 0?", options: ["1", "0", "Infinito", "Non esiste"], answer: 0 },
+                    { q: "La derivata del prodotto di due funzioni [f(x)·g(x)]' è f'(x)g(x) + f(x)g'(x).", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Qual è la derivata della funzione ln(x)?", options: ["1/x", "eˣ", "1/x²", "ln(x)"], answer: 0 },
+                    { q: "Cosa rappresenta geometricamente la derivata prima di f(x) nel punto x₀?", options: ["Il coefficiente angolare della retta tangente al grafico", "L'area sotto la curva", "L'asintoto verticale", "La coordinata y dell'intersezione"], answer: 0 },
+                    { q: "La funzione y = tan(x) non è definita a x = π/2 (90°).", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Qual è il valore di log₂32?", options: ["5", "4", "16", "8"], answer: 0 },
+                    { q: "Se Δ (discriminante) > 0, l'equazione di 2° grado ax² + bx + c = 0 possiede due soluzioni reali e distinte.", options: ["Vero", "Falso"], answer: 0 }
+                ],
+                difficile: [
+                    { q: "Qual è la derivata di f(x) = sin(x)?", options: ["cos(x)", "-cos(x)", "-sin(x)", "tan(x)"], answer: 0 },
+                    { q: "Qual è la derivata di f(x) = cos(x)?", options: ["-sin(x)", "sin(x)", "cos(x)", "-tan(x)"], answer: 0 },
+                    { q: "Un punto in cui la derivata prima è zero e cambia segno è un punto di massimo o minimo relativo.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Un punto di flesso è un punto in cui il grafico cambia la concavità.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Qual è il valore del limite (1 + 1/n)ⁿ per n → +∞?", options: ["e (Numero di Eulero ~2.718)", "1", "0", "+∞"], answer: 0 },
+                    { q: "La derivata della quota/rapporto f(x)/g(x) è [f'g - fg'] / g².", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Qual è la derivata della funzione composta f(g(x))?", options: ["f'(g(x)) · g'(x)", "f'(x) · g'(x)", "f'(g'(x))", "f(x) · g'(x)"], answer: 0 },
+                    { q: "Se una funzione è derivabile in un punto x₀, allora è anche continua in x₀.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Qual è l'integrale indefinito fondamentale di ∫ 2x dx?", options: ["x² + C", "2x² + C", "x + C", "2 + C"], answer: 0 },
+                    { q: "Il teorema di de l'Hôpital si applica per risolvere forme indeterminate del tipo 0/0 o ∞/∞.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Qual è l'asintoto orizzontale della funzione y = (2x + 1) / (x - 3) per x → ∞?", options: ["y = 2", "y = 0", "y = 3", "Non esiste"], answer: 0 },
+                    { q: "La funzione eˣ è sempre strettamente crescente e positiva su tutto l'asse reale.", options: ["Vero", "Falso"], answer: 0 }
+                ]
+            },
+            tpsit: {
+                facile: [
+                    { q: "Cosa significa l'acronimo HTML?", options: ["HyperText Markup Language", "High Tech Main Language", "Hyper Transfer Mode Logic", "Hybrid Text Making List"], answer: 0 },
+                    { q: "Un programma scritto in linguaggio C deve essere compilato per generare il codice eseguibile.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Cosa rappresenta una variabile in programmazione?", options: ["Un'area di memoria con un nome ed un tipo di dato", "Un cavo di rete ethernet", "Un comando del sistema operativo", "Un pixel dello schermo"], answer: 0 },
+                    { q: "Quale costrutto viene usato in C/C++ per eseguire decisioni condizionali?", options: ["if ... else", "for", "while", "return"], answer: 0 },
+                    { q: "Un ciclo 'for' viene utilizzato per ripetere un blocco di istruzioni un numero noto di volte.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Cosa si intende per 'Processo' nei sistemi operativi?", options: ["Un programma in esecuzione con risorse assegnate", "Un file immagine salvato su disco", "Un cavo USB", "Un utente registrato"], answer: 0 },
+                    { q: "Quale estensione hanno comunemente le pagine web strutturate?", options: [".html", ".exe", ".cpp", ".png"], answer: 0 },
+                    { q: "Il linguaggio CSS serve a definire lo stile e la veste grafica delle pagine web.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Qual è la funzione del comando 'printf()' in linguaggio C?", options: ["Stampare testo a schermo", "Leggere un tasto da tastiera", "Creare un file", "Chiudere il programma"], answer: 0 },
+                    { q: "Il tipo di dato 'int' in C serve a memorizzare numeri interi.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Quale simbolo si usa in C/C++ per terminare una riga di istruzione?", options: ["; (Punto e virgola)", ": (Due punti)", ". (Punto)", ", (Virgola)"], answer: 0 },
+                    { q: "Cosa indica l'acronimo CPU in un elaboratore?", options: ["Central Processing Unit", "Central Power Unit", "Computer Program Utility", "Control Protocol Unit"], answer: 0 }
+                ],
+                media: [
+                    { q: "Quale modello di architettura software suddivide i compiti tra chi richiede il servizio e chi lo fornisce?", options: ["Client - Server", "Peer to Peer nativo", "Programmazione Sequenziale", "Batch Monolitico"], answer: 0 },
+                    { q: "Un 'Thread' condivide lo spazio di memoria con gli altri thread dello stesso processo.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Quale formato di scambio dati basato su chiavi e valori è standard nelle API web e REST?", options: ["JSON", "PNG", "ZIP", "BMP"], answer: 0 },
+                    { q: "Qual è lo stato di un processo che è pronto in RAM ed attende la CPU dal determinatore (Scheduler)?", options: ["Pronto (Ready)", "In Esecuzione (Running)", "In Attesa (Blocked)", "Terminato"], answer: 0 },
+                    { q: "La 'Race Condition' avviene quando più thread accedono in modo non sincronizzato a una risorsa condivisa.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Quale meccanismo di sincronizzazione fu introdotto da Dijkstra tramite le operazioni P() e V()?", options: ["Semaforo", "Mutex Lock", "Socket", "Pipe"], answer: 0 },
+                    { q: "In linguaggio C, un 'Pointer' (puntatore) è una variabile che contiene l'indirizzo di memoria di un'altra variabile.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Quale tag HTML viene usato per creare un collegamento ipertestuale (link)?", options: ["<a>", "<link>", "<href>", "<p>"], answer: 0 },
+                    { q: "La sezione critica è la porzione di codice in cui un processo accede a una risorsa condivisa.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Quale funzione di rete nei socket C lato server 'ascolta' le connessioni in arrivo?", options: ["listen()", "connect()", "bind()", "send()"], answer: 0 },
+                    { q: "Un 'Mutex' (Mutual Exclusion) può essere posseduto da un solo thread alla volta.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "In JavaScript, quale parola chiave dichiara una variabile con scope di blocco?", options: ["let", "var", "static", "define"], answer: 0 }
+                ],
+                difficile: [
+                    { q: "Cos'è il 'Deadlock' (stallo) nei sistemi operativi?", options: ["Un blocco circolare vicendevole tra processi in attesa di risorse occupate l'uno dall'altro", "Un guasto all'alimentatore", "Un errore di sintassi HTML", "Un loop infinito in un ciclo for"], answer: 0 },
+                    { q: "Quale algoritmo di scheduling della CPU assegna a ciascun processo un quanto di tempo fisso?", options: ["Round Robin", "First Come First Served (FCFS)", "Shortest Job First (SJF)", "Priority Scheduling"], answer: 0 },
+                    { q: "Nella memoria virtuale, la 'Paginazione' suddivide la memoria fisica RAM in blocchi di dimensione fissa detti Frame.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Cos'è il Thrashing in un sistema operativo?", options: ["L'eccessivo swapping di pagine tra RAM e Disco che blocca la CPU", "Un attacco informatico DDoS", "La formattazione del disco duro", "Il riavvio del server"], answer: 0 },
+                    { q: "In C/C++, qual è l'operatore usato per ottenere l'indirizzo di memoria di una variabile?", options: ["& (Ampersand)", "* (Asterisco)", "-> (Freccia)", "% (Percento)"], answer: 0 },
+                    { q: "Le quattro condizioni necessarie per il verificarsi del Deadlock secondo Coffman sono: Mutua esclusione, Possesso e attesa, No preemption e Attesa circolare.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "In un'architettura microservizi, la comunicazione avviene comunemente tramite API HTTP RESTful in formato JSON.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Quale chiamata di sistema nei sistemi UNIX duplica il processo corrente creando un processo figlio?", options: ["fork()", "exec()", "pthread_create()", "wait()"], answer: 0 },
+                    { q: "Cos'è l'Inversione di Priorità nella gestione dei thread?", options: ["Quando un thread ad alta priorità attende che un thread a bassa priorità rilasci un mutex", "Quando il processore si surriscalda", "Quando un ciclo for gira al contrario", "Quando un file viene salvato su chiavetta"], answer: 0 },
+                    { q: "Nelle Socket TCP Berkeley, la sequenza corretta lato Server è: socket() -> bind() -> listen() -> accept().", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Cosa gestisce il 'Garbage Collector' in linguaggi come Java o C#?", options: ["La deallocazione automatica delle aree di memoria heap non più utilizzate", "La pulizia dello schermo", "La rimozione di virus", "L'eliminazione dei file temporanei su disco"], answer: 0 },
+                    { q: "Un'architettura concorrente Asincrona si avvale di Event Loop e Callback non bloccanti.", options: ["Vero", "Falso"], answer: 0 }
+                ]
+            },
+            telecomunicazioni: {
+                facile: [
+                    { q: "Un segnale analogico varia in modo continuo nel tempo e in ampiezza.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Un segnale digitale assume valori discreti (solitamente 0 e 1).", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Cosa misura la Banda Passante di un canale trasmissivo?", options: ["L'intervallo di frequenze che il canale riesce a trasmettere", "La lunghezza del cavo in chilometri", "La tensione elettrica della presa", "Il costo del cavo al metro"], answer: 0 },
+                    { q: "Quale fra i seguenti è un mezzo trasmissivo guidato cavo ad onde guidate?", options: ["Cavo in Fibra Ottica", "Onde Radio Wi-Fi", "Infrarossi", "Satellite"], answer: 0 },
+                    { q: "L'unità di misura della frequenza di un segnale nel Sistema Internazionale è l'Hertz (Hz).", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Cosa si intende per 'Attenuazione' di un segnale in linea?", options: ["La perdita di potenza del segnale durante la propagazione", "L'aumento di velocità del segnale", "La trasformazione da digitale ad analogico", "Il cambio di frequenza del segnale"], answer: 0 },
+                    { q: "Quale tipo di cavo in rame ritorto è comunemente usato per la rete LAN ethernet?", options: ["Cavo UTP (Twisted Pair)", "Cavo Coassiale TV", "Cavo Unipolare", "Cavo Tripartito"], answer: 0 },
+                    { q: "La velocità della luce nel vuoto è di circa 300.000 km/s.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Il decibel (dB) è un'unità di misura logaritmica utilizzata per esprimere rapporti di potenza.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Quale fenomeno consiste nel cambio di direzione delle onde radio quando incontrano un ostacolo?", options: ["Riflessione", "Compressione", "Campionamento", "Amplificazione"], answer: 0 },
+                    { q: "Un segnale periodico si ripete identico a se stesso ad ogni intervallo di tempo detto Periodo (T).", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "La relazione fondamentale tra frequenza f e periodo T è: f = 1 / T.", options: ["Vero", "Falso"], answer: 0 }
+                ],
+                media: [
+                    { q: "In quale modulazione d'ampiezza varia l'ampiezza della portante in base al segnale informativo?", options: ["Modulazione AM", "Modulazione FM", "Modulazione PM", "PCM"], answer: 0 },
+                    { q: "Il Teorema del Campionamento di Nyquist-Shannon afferma che la frequenza di campionamento fc deve essere fc ≥ 2·fmax.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Nelle fibre ottiche la luce si propaga per il principio di Riflessione Totale Interna.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Cosa si intende per 'Rumore' in un sistema di telecomunicazioni?", options: ["Qualsiasi segnale indesiderato che si sovrappone al segnale utile alterandolo", "L'audio ad alto volume delle casse", "La frequenza della portante", "La velocità di trasmissione"], answer: 0 },
+                    { q: "Quale tipo di fibra ottica permette un solo modo di propagazione ed è usata per lunghe distanze?", options: ["Fibra Monomodale", "Fibra Multimodale Step-Index", "Fibra Multimodale Graded-Index", "Cavo Coassiale"], answer: 0 },
+                    { q: "Cosa indica l'acronimo TDM in trasmissione?", options: ["Time Division Multiplexing (Multiplazione a divisione di tempo)", "Total Data Management", "Telecomm Data Mode", "Transmission Dual Module"], answer: 0 },
+                    { q: "La conversione Analogico-Digitale (ADC) prevede tre fasi: Campionamento, Quantizzazione e Codifica.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "L'errore di quantizzazione si verifica nella digitalizzazione dei segnali per via della discretizzazione dei livelli d'ampiezza.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "In quale modulazione angolare varia la frequenza della portante in base al segnale modulante?", options: ["FM (Frequency Modulation)", "AM (Amplitude Modulation)", "ASK", "PAM"], answer: 0 },
+                    { q: "Cosa misura il parametro SNR (Signal-to-Noise Ratio)?", options: ["Il rapporto tra la potenza del segnale e la potenza del rumore", "La lunghezza del cavo", "La frequenza del campionatore", "Il numero di bit del quantizzatore"], answer: 0 },
+                    { q: "Un filtro Passa-Basso attenua le frequenze superiori alla frequenza di taglio lasciando passare quelle inferiori.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "La FDM (Frequency Division Multiplexing) suddivide il canale trasmissivo in diverse bande di frequenza.", options: ["Vero", "Falso"], answer: 0 }
+                ],
+                difficile: [
+                    { q: "Qual è la formula del Teorema della Capacità di Canale di Shannon-Hartley?", options: ["C = B · log₂(1 + SNR)", "C = 2 · B", "C = B / SNR", "C = f_c · N_bit"], answer: 0 },
+                    { q: "Cos'è l'Aliasing nel campionamento di un segnale analogico?", options: ["La sovrapposizione delle repliche spettrali dovuta a una frequenza di campionamento inferiore a 2·fmax", "L'aumento di ampiezza del segnale", "La perdita di attenuazione", "Un tipo di rumore termico"], answer: 0 },
+                    { q: "Quale codifica di canale digitale cambia stato a metà di ogni intervallo di bit garantendo il sincronismo del clock?", options: ["Codifica Manchester", "Codifica NRZ (Non-Return-to-Zero)", "Codifica RZ Unipolare", "Codifica AMI"], answer: 0 },
+                    { q: "La modulazione QAM (Quadrature Amplitude Modulation) combina variazioni di ampiezza e di fase della portante.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Quale rumore stocastico è generato dall'agitazione termica casuale degli elettroni nei conduttori?", options: ["Rumore Termico (o Rumore Bianco / Johnson)", "Interferenza d'Atterraggio", "Rumore d'Impulso", "Jitter"], answer: 0 },
+                    { q: "Nelle fibre ottiche, la Dispersione Cromatica causa l'allargamento temporale degli impulsi luminosi.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Cos'è la 'Diapfonia' (Crosstalk) nelle linee di trasmissione?", options: ["L'interferenza elettromagnetica indesiderata indotta tra conduttori adiacenti", "L'aumento della velocità della luce", "Il surriscaldamento del cavo", "La perdita del segnale GPS"], answer: 0 },
+                    { q: "Il grafico dell'inviluppo complesso di un segnale modulato in fase mostra una variazione sulla circonferenza unitaria del piano complesso.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Quale tecnica di modulazione numerica varia la fase del segnale in base ai bit (es. BPSK, QPSK)?", options: ["PSK (Phase Shift Keying)", "ASK (Amplitude Shift Keying)", "FSK (Frequency Shift Keying)", "PCM"], answer: 0 },
+                    { q: "La trasformata di Fourier converte un segnale dal dominio del tempo al dominio della frequenza.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Qual è il guadagno in dB se la potenza d'uscita è 100 volte la potenza d'ingresso (Pout/Pin = 100)?", options: ["20 dB (10 · log₁0(100))", "10 dB", "100 dB", "3 dB"], answer: 0 },
+                    { q: "Il Jitter indica la variazione indesiderata del ritardo di trasmissione dei pacchetti nel tempo.", options: ["Vero", "Falso"], answer: 0 }
+                ]
+            },
+            sistemi: {
+                facile: [
+                    { q: "Quanti bit compongono un indirizzo IPv4?", options: ["32 bit", "64 bit", "128 bit", "16 bit"], answer: 0 },
+                    { q: "Un indirizzo IPv4 è rappresentato da 4 ottetti decimali separati da punti (es. 192.168.1.1).", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Quale dispositivo di rete collega più segmenti di LAN lavorando al livello 2 (Data Link)?", options: ["Switch", "Router", "Hub pasivo", "Modem 56k"], answer: 0 },
+                    { q: "Quale protocollo trasforma un nome di dominio (es. www.google.com) nel rispettivo indirizzo IP?", options: ["DNS", "DHCP", "FTP", "HTTP"], answer: 0 },
+                    { q: "Il protocollo DHCP assegna automaticamente gli indirizzi IP ai client della rete.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Quanti livelli ha il modello di riferimento ISO/OSI?", options: ["7 livelli", "4 livelli", "5 livelli", "8 livelli"], answer: 0 },
+                    { q: "Quale livello del modello ISO/OSI si occupa dell'instradamento dei pacchetti?", options: ["Livello 3 (Rete)", "Livello 2 (Data Link)", "Livello 4 (Trasporto)", "Livello 7 (Applicazione)"], answer: 0 },
+                    { q: "Qual è l'indirizzo IP di Loopback locale standard IPv4?", options: ["127.0.0.1", "192.168.0.1", "10.0.0.1", "255.255.255.255"], answer: 0 },
+                    { q: "Un indirizzo MAC (Media Access Control) è l'indirizzo fisico della scheda di rete.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Quale comando da riga di comando invia pacchetti ICMP per verificare la connettività di rete?", options: ["ping", "ipconfig", "traceroute", "netstat"], answer: 0 },
+                    { q: "La Subnet Mask predefinita per una rete di classe C è 255.255.255.0 (/24).", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Quale porta standard utilizza il servizio web non cifrato HTTP?", options: ["Porta 80", "Porta 443", "Porta 21", "Porta 25"], answer: 0 }
+                ],
+                media: [
+                    { q: "Quanti bit compongono un indirizzo IPv6?", options: ["128 bit", "32 bit", "64 bit", "48 bit"], answer: 0 },
+                    { q: "Qual è la differenza fondamentale tra il protocollo TCP ed il protocollo UDP?", options: ["TCP è orientato alla connessione e garantisce la consegna, UDP è non orientato alla connessione", "UDP garantisce la consegna ordinata, TCP no", "TCP opera al livello 3, UDP al livello 7", "Non c'è alcuna differenza"], answer: 0 },
+                    { q: "Quale tra i seguenti è un intervallo di indirizzi IP PRIVATI definiti da RFC 1918?", options: ["192.168.0.0 - 192.168.255.255", "8.8.8.8 - 8.8.4.4", "1.1.1.1 - 1.0.0.1", "200.100.50.0 - 200.100.50.255"], answer: 0 },
+                    { q: "Il protocollo ARP (Address Resolution Protocol) associa un indirizzo IP logico al relativo indirizzo MAC fisico.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Quale porta di rete viene usata dal protocollo sicuro HTTPS?", options: ["Porta 443", "Porta 80", "Porta 22", "Porta 110"], answer: 0 },
+                    { q: "Cosa fa il NAT (Network Address Translation) sui router di casa/azienda?", options: ["Traduce gli indirizzi IP privati della LAN nell'indirizzo IP pubblico sul Web", "Aumenta la velocità del Wi-Fi", "Formatta gli hard disk di rete", "Cifra le e-mail in uscita"], answer: 0 },
+                    { q: "Quanti bit è lungo un indirizzo MAC fisico?", options: ["48 bit (6 byte)", "32 bit", "64 bit", "128 bit"], answer: 0 },
+                    { q: "Una VLAN (Virtual LAN) permette di dividere logicamente una rete fisica in più domini di trasmissione indipendenti.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Quale protocollo di trasporto usa l'Handshake a 3 vie (Three-Way Handshake SYN, SYN-ACK, ACK)?", options: ["TCP", "UDP", "ICMP", "IP"], answer: 0 },
+                    { q: "Quale porta standard è usata dal protocollo SSH per l'accesso remoto sicuro?", options: ["Porta 22", "Porta 21", "Porta 23", "Porta 8080"], answer: 0 },
+                    { q: "Il protocollo ICMP è utilizzato dai comandi 'ping' e 'traceroute' per messaggi di controllo e errore.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Quale livello del modello TCP/IP corrisponde al livello Trasporto del modello ISO/OSI?", options: ["Livello Trasporto (Transport)", "Livello Internet", "Livello Accesso alla rete", "Livello Applicazione"], answer: 0 }
+                ],
+                difficile: [
+                    { q: "In una sottorete IPv4 192.168.1.0/26, quanti host utili possono essere configurati?", options: ["62 host (2⁶ - 2)", "64 host", "128 host", "30 host"], answer: 0 },
+                    { q: "Qual è la maschera di sottorete (Subnet Mask) per una notazione CIDR /28?", options: ["255.255.255.240", "255.255.255.224", "255.255.255.192", "255.255.255.248"], answer: 0 },
+                    { q: "Quale algoritmo di instradamento Dinamico si basa sullo stato dei collegamenti (Link-State)?", options: ["OSPF", "RIP (Routing Information Protocol)", "BGP", "Distance Vector puro"], answer: 0 },
+                    { q: "Il protocollo BGP (Border Gateway Protocol) è l'EGP principale usato per l'instradamento tra Autonomous System su Internet.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Cosa evita il fenomeno dei loop di switching al livello Data Link nelle reti locali?", options: ["Spanning Tree Protocol (STP)", "DHCP Snooping", "NAT Statico", "OSPF Area 0"], answer: 0 },
+                    { q: "Nella frammentazione IP, il campo 'Fragment Offset' indica la posizione del frammento espressa in blocchi di 8 byte.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Cos'è il 'Congestion Window' (cwnd) nel controllo della congestione di TCP?", options: ["La quantità massima di dati che il mittente può trasmettere prima di ricevere un ACK", "La dimensione del buffer della scheda di rete", "Il limite di banda del cavo ottico", "Il tempo di risposta del server DNS"], answer: 0 },
+                    { q: "I record DNS di tipo 'MX' (Mail Exchange) specificano i mail server responsabili per un dominio.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Quale attacco informatico consiste nell'invio di risposte ARP false per intercettare il traffico di rete (Man-in-the-Middle)?", options: ["ARP Spoofing / ARP Poisoning", "DNS Amplification", "Buffer Overflow", "SQL Injection"], answer: 0 },
+                    { q: "Quale tipo di Firewall analizza il traffico mantenendo lo stato delle connessioni attive?", options: ["Stateful Inspection Firewall", "Stateless Packet Filter", "Proxy HTTP semplice", "Hub di rete"], answer: 0 },
+                    { q: "Il meccanismo 'Slow Start' di TCP raddoppia la dimensione della Congestion Window ad ogni RTT fino alla soglia ssthresh.", options: ["Vero", "Falso"], answer: 0 },
+                    { q: "Cos'è l'incapsulamento dei dati nella pila di protocolli di rete?", options: ["Il processo in cui ogni livello aggiunge la propria intestazione (header) al PDU proveniente dal livello superiore", "La compressione zip del file", "La cifratura delle password", "La cancellazione dei cookie"], answer: 0 }
+                ]
+            }
+        };
+
+        let quizState = {
+            category: 'cultura',
+            questionCount: 5,
+            difficulty: 'facile',
+            questions: [],
+            currentIndex: 0,
+            correctCount: 0,
+            baseFichesPerQ: 75,
+            diffMultiplier: 1.0
+        };
+
+        function initQuizSetupUI() {
+            document.querySelectorAll('.quiz-qcount-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.quiz-qcount-btn').forEach(b => {
+                        b.classList.remove('bg-indigo-700', 'border-indigo-400', 'ring-2', 'ring-amber-400');
+                        b.classList.add('bg-indigo-950/60');
+                    });
+                    const target = e.currentTarget;
+                    target.classList.remove('bg-indigo-950/60');
+                    target.classList.add('bg-indigo-700', 'border-indigo-400', 'ring-2', 'ring-amber-400');
+
+                    quizState.questionCount = parseInt(target.getAttribute('data-qcount'), 10);
+                    if (quizState.questionCount === 3) quizState.baseFichesPerQ = 50;
+                    else if (quizState.questionCount === 5) quizState.baseFichesPerQ = 75;
+                    else if (quizState.questionCount === 10) quizState.baseFichesPerQ = 100;
+
+                    calculateMaxEarnings();
+                });
+            });
+
+            document.querySelectorAll('.quiz-diff-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.quiz-diff-btn').forEach(b => {
+                        b.classList.remove('ring-2', 'ring-amber-400', 'scale-105');
+                    });
+                    const target = e.currentTarget;
+                    target.classList.add('ring-2', 'ring-amber-400', 'scale-105');
+
+                    quizState.difficulty = target.getAttribute('data-diff');
+                    if (quizState.difficulty === 'facile') quizState.diffMultiplier = 1.0;
+                    else if (quizState.difficulty === 'media') quizState.diffMultiplier = 1.5;
+                    else if (quizState.difficulty === 'difficile') quizState.diffMultiplier = 2.0;
+
+                    calculateMaxEarnings();
+                });
+            });
+
+            document.getElementById('quizCategorySelect').addEventListener('change', (e) => {
+                quizState.category = e.target.value;
+            });
+
+            calculateMaxEarnings();
+        }
+
+        function calculateMaxEarnings() {
+            const maxEarnings = Math.round(quizState.questionCount * quizState.baseFichesPerQ * quizState.diffMultiplier);
+            document.getElementById('quizMaxEarningsDisplay').innerText = `${maxEarnings} Fiches`;
+        }
+
+        // Shuffle helper array algorithm (Fisher-Yates)
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function startQuiz() {
+            const catPool = QUIZ_QUESTIONS[quizState.category] || QUIZ_QUESTIONS['cultura'];
+            const diffPool = catPool[quizState.difficulty] || catPool['facile'];
+
+            // Shuffle pool questions so they are always randomized and unique
+            const shuffledPool = shuffleArray(diffPool);
+
+            // Select exact requested question count (3, 5, or 10) without repeating
+            const selectedQuestions = shuffledPool.slice(0, quizState.questionCount);
+
+            // Prepare questions with dynamic answer shuffling so answer is not always in position 0!
+            quizState.questions = selectedQuestions.map(qObj => {
+                // Map options with their original correctness flag
+                let optsWithFlag = qObj.options.map((optText, origIdx) => ({
+                    text: optText,
+                    isCorrect: origIdx === qObj.answer
+                }));
+
+                // Shuffle the order of answers!
+                optsWithFlag = shuffleArray(optsWithFlag);
+
+                // Find new correct index
+                const newCorrectIdx = optsWithFlag.findIndex(o => o.isCorrect);
+
+                return {
+                    q: qObj.q,
+                    options: optsWithFlag.map(o => o.text),
+                    answer: newCorrectIdx
+                };
+            });
+
+            quizState.currentIndex = 0;
+            quizState.correctCount = 0;
+
+            document.getElementById('quizSetupStep').classList.add('hidden');
+            document.getElementById('quizResultStep').classList.add('hidden');
+            document.getElementById('quizActiveStep').classList.remove('hidden');
+
+            renderCurrentQuestion();
+        }
+
+        function renderCurrentQuestion() {
+            const currentQ = quizState.questions[quizState.currentIndex];
+
+            document.getElementById('quizProgressText').innerText = `Domanda ${quizState.currentIndex + 1} / ${quizState.questionCount}`;
+            
+            const categoryNames = {
+                cultura: "Cultura Generale",
+                storia: "Storia (3°-4° Anno)",
+                matematica: "Matematica (3°-4° Anno)",
+                tpsit: "TPSIT (3°-4° Anno)",
+                telecomunicazioni: "Telecomunicazioni (3°-4° Anno)",
+                sistemi: "Sistemi e Reti (3°-4° Anno)"
+            };
+
+            const diffBadge = document.getElementById('quizCurrentDiffBadge');
+            diffBadge.innerText = quizState.difficulty.toUpperCase();
+            if (quizState.difficulty === 'facile') {
+                diffBadge.className = "bg-emerald-900/80 text-emerald-200 px-2 py-0.5 rounded-full text-[10px] font-bold border border-emerald-500/40 uppercase";
+            } else if (quizState.difficulty === 'media') {
+                diffBadge.className = "bg-amber-900/80 text-amber-200 px-2 py-0.5 rounded-full text-[10px] font-bold border border-amber-500/40 uppercase";
+            } else {
+                diffBadge.className = "bg-red-900/80 text-red-200 px-2 py-0.5 rounded-full text-[10px] font-bold border border-red-500/40 uppercase";
+            }
+
+            document.getElementById('quizCurrentCategoryBadge').innerText = categoryNames[quizState.category] || "Quiz";
+            document.getElementById('quizQuestionText').innerText = currentQ.q;
+
+            const container = document.getElementById('quizOptionsContainer');
+            container.innerHTML = '';
+
+            document.getElementById('quizFeedbackBox').classList.add('hidden');
+            document.getElementById('quizNextBtn').classList.add('hidden');
+
+            currentQ.options.forEach((optText, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "quiz-opt-btn bg-indigo-950/70 hover:bg-indigo-800 border border-indigo-500/40 p-3 rounded-xl text-xs md:text-sm font-semibold text-indigo-100 flex items-center gap-3 text-left transition active:scale-98";
+                
+                const letterBadge = String.fromCharCode(65 + idx);
+                btn.innerHTML = `<span class="w-6 h-6 rounded-lg bg-indigo-900 border border-indigo-400/50 flex items-center justify-center text-[11px] font-bold text-amber-300 flex-shrink-0">${letterBadge}</span> <span>${optText}</span>`;
+                
+                btn.addEventListener('click', () => handleAnswerSelection(idx));
+                container.appendChild(btn);
+            });
+        }
+
+        function handleAnswerSelection(selectedIdx) {
+            const currentQ = quizState.questions[quizState.currentIndex];
+            const buttons = document.querySelectorAll('.quiz-opt-btn');
+
+            buttons.forEach(btn => btn.disabled = true);
+
+            const isCorrect = selectedIdx === currentQ.answer;
+            const feedbackBox = document.getElementById('quizFeedbackBox');
+
+            if (isCorrect) {
+                quizState.correctCount++;
+                buttons[selectedIdx].classList.remove('bg-indigo-950/70', 'border-indigo-500/40');
+                buttons[selectedIdx].classList.add('bg-emerald-800/90', 'border-emerald-400', 'text-white');
+                
+                feedbackBox.className = "p-3 rounded-xl border border-emerald-500/50 bg-emerald-950/80 text-emerald-300 text-xs text-center font-bold";
+                feedbackBox.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 mr-1"></i> ESATTO! Risposta Corretta.`;
+                playSound('chip');
+            } else {
+                buttons[selectedIdx].classList.remove('bg-indigo-950/70', 'border-indigo-500/40');
+                buttons[selectedIdx].classList.add('bg-red-900/90', 'border-red-400', 'text-white');
+                
+                buttons[currentQ.answer].classList.remove('bg-indigo-950/70', 'border-indigo-500/40');
+                buttons[currentQ.answer].classList.add('bg-emerald-800/90', 'border-emerald-400');
+
+                feedbackBox.className = "p-3 rounded-xl border border-red-500/50 bg-red-950/80 text-red-300 text-xs text-center font-bold";
+                feedbackBox.innerHTML = `<i class="fa-solid fa-circle-xmark text-red-400 mr-1"></i> ERRATO! La risposta corretta era la ${String.fromCharCode(65 + currentQ.answer)}.`;
+                playSound('lose');
+            }
+
+            feedbackBox.classList.remove('hidden');
+            document.getElementById('quizNextBtn').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            quizState.currentIndex++;
+            if (quizState.currentIndex < quizState.questionCount) {
+                renderCurrentQuestion();
+            } else {
+                showQuizResults();
+            }
+        }
+
+        function showQuizResults() {
+            document.getElementById('quizActiveStep').classList.add('hidden');
+            document.getElementById('quizResultStep').classList.remove('hidden');
+
+            const totalEarned = Math.round(quizState.correctCount * quizState.baseFichesPerQ * quizState.diffMultiplier);
+
+            document.getElementById('quizResultScoreText').innerText = `${quizState.correctCount} / ${quizState.questionCount}`;
+            document.getElementById('quizResultMultText').innerText = `x${quizState.diffMultiplier}`;
+            document.getElementById('quizResultFichesText').innerText = `+${totalEarned} Fiches`;
+
+            playSound('win');
+        }
+
+        function collectQuizEarnings() {
+            const totalEarned = Math.round(quizState.correctCount * quizState.baseFichesPerQ * quizState.diffMultiplier);
+            
+            if (totalEarned > 0) {
+                balance += totalEarned;
+                updateBalanceDisplay();
+                showToast(`Accreditate +${totalEarned} Fiches al tuo saldo!`);
+            }
+
+            document.getElementById('quizModal').classList.add('hidden');
+            document.getElementById('quizSetupStep').classList.remove('hidden');
+            document.getElementById('quizResultStep').classList.add('hidden');
+            document.getElementById('quizActiveStep').classList.add('hidden');
+        }
+
+        document.getElementById('openQuizBtn').addEventListener('click', () => {
+            document.getElementById('quizModal').classList.remove('hidden');
+            document.getElementById('quizSetupStep').classList.remove('hidden');
+            document.getElementById('quizResultStep').classList.add('hidden');
+            document.getElementById('quizActiveStep').classList.add('hidden');
+            playSound('chip');
+        });
+
+        document.getElementById('closeQuizModalBtn').addEventListener('click', () => {
+            document.getElementById('quizModal').classList.add('hidden');
+        });
+
+        document.getElementById('startQuizBtn').addEventListener('click', () => {
+            startQuiz();
+        });
+
+        document.getElementById('quizNextBtn').addEventListener('click', () => {
+            nextQuestion();
+        });
+
+        document.getElementById('collectQuizEarningsBtn').addEventListener('click', () => {
+            collectQuizEarnings();
+        });
+
+        const canvas = document.getElementById('rouletteWheel');
+        const ctx = canvas.getContext('2d');
+        const wheelRadius = canvas.width / 2;
+        let currentWheelAngle = 0;
+
+        function drawRouletteWheel(angle = 0) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const numSlices = ROULETTE_NUMBERS.length;
+            const sliceAngle = (2 * Math.PI) / numSlices;
+
+            ctx.save();
+            ctx.translate(wheelRadius, wheelRadius);
+            ctx.rotate(angle);
+
+            // Outer Wooden / Gold Border
+            ctx.beginPath();
+            ctx.arc(0, 0, wheelRadius - 2, 0, 2 * Math.PI);
+            ctx.fillStyle = '#2a1405';
+            ctx.fill();
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = '#c5a059';
+            ctx.stroke();
+
+            // Inner Wheel Pockets
+            const radius = wheelRadius - 15;
+
+            for (let i = 0; i < numSlices; i++) {
+                const num = ROULETTE_NUMBERS[i];
+                const startA = i * sliceAngle;
+                const endA = startA + sliceAngle;
+
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.arc(0, 0, radius, startA, endA);
+                ctx.closePath();
+
+                if (num === 0) {
+                    ctx.fillStyle = '#16a34a';
+                } else if (RED_NUMBERS.includes(num)) {
+                    ctx.fillStyle = '#dc2626';
+                } else {
+                    ctx.fillStyle = '#111827';
+                }
+                ctx.fill();
+
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = '#c5a059';
+                ctx.stroke();
+
+                ctx.save();
+                ctx.rotate(startA + sliceAngle / 2);
+                ctx.textAlign = 'right';
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 12px Inter';
+                ctx.fillText(num.toString(), radius - 10, 4);
+                ctx.restore();
+            }
+
+            // Center Turret Cone
+            ctx.beginPath();
+            ctx.arc(0, 0, radius * 0.45, 0, 2 * Math.PI);
+            ctx.fillStyle = '#1a0f05';
+            ctx.fill();
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#d4af37';
+            ctx.stroke();
+
+            // Brass Center Star
+            ctx.beginPath();
+            ctx.arc(0, 0, radius * 0.2, 0, 2 * Math.PI);
+            const gradient = ctx.createRadialGradient(0, 0, 2, 0, 0, radius * 0.2);
+            gradient.addColorStop(0, '#ffe082');
+            gradient.addColorStop(1, '#aa7c11');
+            ctx.fillStyle = gradient;
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        drawRouletteWheel(0);
+
+        document.getElementById('spinBtn').addEventListener('click', () => {
+            if (isSpinning) return;
+
+            const totalBet = Object.values(currentBets).reduce((a, b) => a + b, 0);
+            if (totalBet === 0) {
+                showToast('Piazza almeno una puntata per girare!');
+                return;
+            }
+
+            isSpinning = true;
+            document.getElementById('spinBtn').disabled = true;
+            document.getElementById('statusBanner').innerHTML = `
+                <span class="text-yellow-400 font-bold text-lg animate-pulse">La ruota sta girando...</span>
+                <span class="text-xs text-emerald-300 mt-1">Buona fortuna!</span>
+            `;
+
+            const winningIndex = Math.floor(Math.random() * ROULETTE_NUMBERS.length);
+            const winningNumber = ROULETTE_NUMBERS[winningIndex];
+
+            const numSlices = ROULETTE_NUMBERS.length;
+            const sliceAngle = (2 * Math.PI) / numSlices;
+            
+            const targetSliceCenter = winningIndex * sliceAngle + sliceAngle / 2;
+            let targetAngle = (3 * Math.PI / 2) - targetSliceCenter;
+
+            const extraRounds = 6 * (2 * Math.PI);
+            const finalAngle = currentWheelAngle + extraRounds + (targetAngle - (currentWheelAngle % (2 * Math.PI)));
+
+            const startTime = performance.now();
+            const spinDuration = 5000;
+
+            let lastTickAngle = currentWheelAngle;
+
+            function animateSpin(now) {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / spinDuration, 1);
+
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                currentWheelAngle = currentWheelAngle + (finalAngle - currentWheelAngle) * (easeOut * 0.05);
+
+                if (Math.abs(currentWheelAngle - lastTickAngle) > sliceAngle) {
+                    playSound('tick');
+                    lastTickAngle = currentWheelAngle;
+                }
+
+                drawRouletteWheel(currentWheelAngle);
+
+                if (progress < 1) {
+                    requestAnimationFrame(animateSpin);
+                } else {
+                    currentWheelAngle = finalAngle;
+                    drawRouletteWheel(currentWheelAngle);
+                    handleSpinResult(winningNumber);
+                }
+            }
+
+            requestAnimationFrame(animateSpin);
+        });
+
+        function handleSpinResult(winningNum) {
+            isSpinning = false;
+            document.getElementById('spinBtn').disabled = false;
+
+            const isRed = RED_NUMBERS.includes(winningNum);
+            const isGreen = winningNum === 0;
+            const colorName = isGreen ? 'VERDE' : (isRed ? 'ROSSO' : 'NERO');
+            const numDisplay = document.getElementById('winningNumberDisplay');
+            
+            numDisplay.innerText = `${winningNum} (${colorName})`;
+            numDisplay.className = `text-xl font-bold ${isGreen ? 'text-green-400' : (isRed ? 'text-red-400' : 'text-gray-200')}`;
+
+            history.unshift({ num: winningNum, color: isGreen ? 'green' : (isRed ? 'red' : 'black') });
+            if (history.length > 10) history.pop();
+            renderHistory();
+
+            document.querySelectorAll('.winning-highlight').forEach(e => e.classList.remove('winning-highlight'));
+            const winningCell = document.querySelector(`[data-bet="${winningNum}"]`);
+            if (winningCell) winningCell.classList.add('winning-highlight');
+
+            let totalWin = 0;
+
+            Object.keys(currentBets).forEach(betId => {
+                const amount = currentBets[betId];
+                if (amount <= 0) return;
+
+                let won = false;
+                let multiplier = 0;
+
+                if (!isNaN(betId)) {
+                    if (parseInt(betId, 10) === winningNum) {
+                        won = true;
+                        multiplier = 36;
+                    }
+                }
+                else if (betId === 'doz1' && winningNum >= 1 && winningNum <= 12) { won = true; multiplier = 3; }
+                else if (betId === 'doz2' && winningNum >= 13 && winningNum <= 24) { won = true; multiplier = 3; }
+                else if (betId === 'doz3' && winningNum >= 25 && winningNum <= 36) { won = true; multiplier = 3; }
+                else if (betId === 'col1' && winningNum > 0 && winningNum % 3 === 1) { won = true; multiplier = 3; }
+                else if (betId === 'col2' && winningNum > 0 && winningNum % 3 === 2) { won = true; multiplier = 3; }
+                else if (betId === 'col3' && winningNum > 0 && winningNum % 3 === 0) { won = true; multiplier = 3; }
+                else if (betId === 'even' && winningNum > 0 && winningNum % 2 === 0) { won = true; multiplier = 2; }
+                else if (betId === 'odd' && winningNum > 0 && winningNum % 2 !== 0) { won = true; multiplier = 2; }
+                else if (betId === 'red' && RED_NUMBERS.includes(winningNum)) { won = true; multiplier = 2; }
+                else if (betId === 'black' && winningNum > 0 && !RED_NUMBERS.includes(winningNum)) { won = true; multiplier = 2; }
+                else if (betId === '1to18' && winningNum >= 1 && winningNum <= 18) { won = true; multiplier = 2; }
+                else if (betId === '19to36' && winningNum >= 19 && winningNum <= 36) { won = true; multiplier = 2; }
+
+                if (won) {
+                    totalWin += amount * multiplier;
+                }
+            });
+
+            balance += totalWin;
+            updateBalanceDisplay();
+
+            document.getElementById('lastWinDisplay').innerText = totalWin.toLocaleString('it-IT');
+
+            const statusBanner = document.getElementById('statusBanner');
+
+            if (totalWin > 0) {
+                playSound('win');
+                statusBanner.innerHTML = `
+                    <span class="text-amber-400 font-extrabold text-2xl gold-gradient-text animate-bounce">HAI VINTO ${totalWin.toLocaleString('it-IT')} FICHES!</span>
+                    <span class="text-xs text-emerald-300 mt-1">Numero Estratto: ${winningNum} (${colorName})</span>
+                `;
+            } else {
+                playSound('lose');
+                statusBanner.innerHTML = `
+                    <span class="text-red-400 font-bold text-lg">Nessuna vincita in questo giro</span>
+                    <span class="text-xs text-emerald-400/80 mt-1">Numero Estratto: ${winningNum} (${colorName})</span>
+                `;
+            }
+
+            currentBets = {};
+            updateBetsUI();
+        }
+
+        function renderHistory() {
+            const container = document.getElementById('historyContainer');
+            container.innerHTML = '';
+
+            history.forEach(item => {
+                const badge = document.createElement('span');
+                let colorBg = 'bg-gray-800 text-white';
+                if (item.color === 'red') colorBg = 'bg-red-600 text-white';
+                if (item.color === 'green') colorBg = 'bg-emerald-600 text-white';
+
+                badge.className = `inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold ${colorBg} border border-white/20 shadow-md flex-shrink-0`;
+                badge.innerText = item.num;
+                container.appendChild(badge);
+            });
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').innerText = msg;
+            toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-4');
+            }, 3000);
+        }
+
+        document.getElementById('closeDailyModalBtn').addEventListener('click', () => {
+            document.getElementById('dailyModal').classList.add('hidden');
+            playSound('chip');
+        });
+
+        // Application entry point
+        window.addEventListener('load', () => {
+            initLocalStorage();
+            createBettingTable();
+            renderChipsBar();
+            initQuizSetupUI();
+        });
+    </script>
+</body>
+</html>
